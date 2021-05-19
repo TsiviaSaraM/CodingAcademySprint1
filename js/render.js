@@ -21,11 +21,13 @@ function renderBoard() {
 }
 
 function renderUncoveredCell(elCell, i, j) { 
+    var elCell = document.querySelector(`[data-i="${i}"][data-j="${j}"]`);
+    console.log("a cell was uncovered");
+    console.log(elCell);
     var cell = gBoard[i][j];
     if (cell.isMine) elCell.innerText = MINE;
     else if (cell.minesAroundCount > 0) elCell.innerText = cell.minesAroundCount;
     else elCell.innerHTML = ' ';
-    console.log(cell.minesAroundCount);
     //debugger;
     elCell.className = "revealed";
 }
@@ -56,3 +58,5 @@ function showAllMines() {
         }
     }
 }
+
+
