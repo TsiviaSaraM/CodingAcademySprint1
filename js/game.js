@@ -60,7 +60,7 @@ function cellClicked(elCell, i, j){
 //   }
 
 
-function cellMarked(elCell, i, j) {
+function cellMarked(elCell, i, j) { //TODO remove 1st param everywhere
    console.log("handling right click");
     var cell = gBoard[i][j];
     if (cell.isShown) return;
