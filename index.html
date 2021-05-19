@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body onload="init()">
+    <h1>MINE SWEEPER</h1>
+    <div class="top-info">
+        <button onclick="init()" class="smiley">😀</button>
+        <div class="timer">time</div>
+        <div class="levels">
+            <button onclick="setLevel(4)">easy</button>
+            <button onclick="setLevel(16)">medium</button>
+            <button onclick="setLevel(25)">hard</button>
+        </div>
+    </div>
+
+    <table >
+        <tbody class="board">
+
+        </tbody>
+    </table>
+
+
+
+
+    <div class="bottom-info"></div>
+    
+    <footer>Tsivia Morrison</footer>
+</body>
+
+<script src="js/utils.js"></script>
+<script src="js/board.js"></script>
+<script src="js/render.js"></script>
+<script src="js/game.js"></script>
+</html>
+
+
