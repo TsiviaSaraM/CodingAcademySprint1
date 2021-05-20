@@ -1,20 +1,15 @@
-var gBoard = createEmptyBoard();
+'use strict'
+var gBoard;
 
 
-
-var gBoard = [];
-
-
-function buildBoard() {
-
+function buildBoard(currPosI=-1, currPosJ=-1) { 
     //build empty board
     //var board = createEmptyBoard();
-    board = gBoard; //TODO change this so more logical
-    console.log(board);
-    height = width = Math.sqrt(gLevel.SIZE);
+    var board = gBoard; //TODO change this so more logical
+    var height= Math.sqrt(gLevel.SIZE);
     for (var i = 0; i < height; i++) {
         //var row = [];
-        for (var j = 0; j < width; j++) {
+        for (var j = 0; j < height; j++) {
             board[i][j] = {
                 minesAroundCount: 0,
                 isShown: false,
@@ -25,10 +20,10 @@ function buildBoard() {
         //board.push(row);
     }
     //fill with mines
-    insertMines(board);
+    if (gLevel.NAME !== 'manual') insertMines(board, currPosI, currPosJ);  
     setMinesNegsCount(board);
-    printMines(board);
-    printMinesCount(board)
+    // printMines(board);
+    // printMinesCount(board)
     return board;
 }
 
@@ -36,17 +31,18 @@ function buildBoard() {
 //helper functions//
 
 //adds mines to random locations on board when creating the board
-function insertMines(board) {
+function insertMines(board, currPosI, currPosJ) {
     //create array of positions
-    var positions = getPositions(board.length, board.length);
-    console.log('positions', positions);
+    var positions = getPositions(board, currPosI, currPosJ);
+    
+    //console.log('positions', positions);
     for (var minesCount = 0; minesCount < gLevel.MINES; minesCount++) {
         //add mines randomly
         var randomIndex = getRandomNumber(positions.length);
         var position = positions[randomIndex];
         board[position.i][position.j].isMine = true;
-        console.log('mine', {i:position.i, j:position.j});
-        console.log('index', randomIndex);
+        //console.log('mine', {i:position.i, j:position.j});
+        //console.log('index', randomIndex);
         positions.splice(randomIndex, 1);
     } 
 
@@ -77,4 +73,16 @@ function getMinesCount(cellLocation, board) {
     }
   //  console.log("end count", count);
     return count;
+}
+
+function getPositions(board, currPosI, currPosJ) {
+    var positions = [];
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[0].length; j++) {
+            
+            if (i === currPosI && j === currPosJ) continue; 
+            positions.push({i:i, j:j});       
+        }
+    }  
+    return positions;
 }

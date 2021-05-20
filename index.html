@@ -8,37 +8,72 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body onload="init()">
-    <h1>MINE SWEEPER</h1>
-    <div class="top-info">
-        <button onclick="init()" class="smiley">😀</button>
-        <div class="timer">time</div>
-        <div class="levels">
-            <button onclick="setLevel(4)">easy</button>
-            <button onclick="setLevel(16)">medium</button>
-            <button onclick="setLevel(25)">hard</button>
+    <div class="center">
+
+
+        <h1>MINE SWEEPER</h1>
+        <div class="top-info">
+            <p>
+
+                <button onclick="restart()" class="smiley">😀</button>
+                <button onclick="showSafe(this)">Safe Click</button>
+            </p>
+
+            <div class="timer">time</div>
+            <div class="levels">
+                <button onclick="setLevel('easy')">easy</button>
+                <button onclick="setLevel('medium')">medium</button>
+                <button onclick="setLevel('hard')">hard</button>
+                <button class="set-mines" onclick="toggleMinesMode(this)">Manual</button>
+            </div>
         </div>
-    </div>
-
-    <table >
-        <tbody class="board">
-
-        </tbody>
-    </table>
-
-
-    <div class="bottom-info"></div>
     
+        <table class="board-table">
+            <tbody class="board">
+    
+            </tbody>
+        </table>
+        <button onclick="undo()">Undo</button>
+        
+        <div class="hints">
+            
+        </div>
+        <div class="lives">
+            Lives remaining: <span class="life-1">🌱 </span> <span class="life-2">🌱 </span> <span class="life-3">🌱</span>
+        </div>
+        <table>
+            <thead>Best Scores</thead>
+            <tbody>
+                <tr>
+                    <td>Easy</td>
+                    <td class="easy-score" >0</td>
+                </tr>
+                <tr>
+                    <td>Medium</td>
+                    <td class="medium-score" >0</td>
+                </tr>
+                <tr>
+                    <td>Hard</td>
+                    <td class="hard-score" >0</td>
+                </tr>
+            </tbody>
+
+        </table>
+
+        <div class="bottom-info"></div>
+        
+    </div>
     <footer>Tsivia Morrison</footer>
 </body>
 
 <script>
     
     </script>
-
 <script src="js/utils.js"></script>
 <script src="js/board.js"></script>
 <script src="js/render.js"></script>
 <script src="js/game.js"></script>
+<script src="js/localStorage.js"></script>
 </html>
 
 

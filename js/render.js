@@ -1,57 +1,45 @@
+'use strict'
+
 const MINE = '💣';
 const FLAG = '🚩';
 
-/*unit test*/
-// var time = new Date();
-// setInterval(showTime, 1000, time);
-
-function renderBoard() {
-    var strHTML = '';
-    for (var i = 0; i < gBoard.length; i++) {
-        strHTML += '<tr>';
-        for (var j = 0; j < gBoard[0].length; j++) {
-            strHTML += `<td class="covered" data-i="${i}" data-j="${j}" onclick="cellClicked(this, ${i}, ${j})" oncontextmenu="cellMarked(this, ${i}, ${j})" > </td>`;
-        }
-        strHTML += '</tr>';
-    }
-    var elBoard = document.querySelector('.board');
-    elBoard.innerHTML = strHTML;
-    
-
-}
-
 function renderUncoveredCell(elCell, i, j) { 
     var elCell = document.querySelector(`[data-i="${i}"][data-j="${j}"]`);
-    console.log("a cell was uncovered");
-    console.log(elCell);
     var cell = gBoard[i][j];
-    if (cell.isMine) elCell.innerText = MINE;
-    else if (cell.minesAroundCount > 0) elCell.innerText = cell.minesAroundCount;
-    else elCell.innerHTML = ' ';
-    //debugger;
+    elCell.innerText = getCellContent(i, j);
     elCell.className = "revealed";
+}
+
+function renderHints() {
+    var strHTML = '';
+  strHTML += `Hints remaining: <span class="unused" data-id=${1} onclick="setHintMode(this)" >💡 </span> 
+   <span class="unused" data-id=${2} onclick="setHintMode(this)">💡 </span>
+   <span class="unused" data-id=${3} onclick="setHintMode(this)">💡</span>`;
+
+   document.querySelector('.hints').innerHTML = strHTML;
+}
+
+function getCellContent(i, j) {
+    var cell = gBoard[i][j];
+    if (cell.isMine) return MINE;
+    else if (cell.minesAroundCount > 0) return cell.minesAroundCount;
+    else return ' ';
+}
+
+function coverCellEl(elCell) {
+    elCell.innerHTML = '';
+    elCell.className = "covered";
 }
 
 function renderSmiley(value) {
     document.querySelector('.smiley').innerHTML = value;
 }
 
-function renderBestScore(score) {
-
-}
-
-function showTime(startTime) {
-    var now = new Date();
-    gGame.secsPassed = Math.floor((now - startTime)/1000);
-    document.querySelector(".timer").innerText = gGame.secsPassed;
-
-}
-
 function showAllMines() {
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[0].length; j++) {
             if (gBoard[i][j].isMine) {
-                var elCell = document.querySelector(`[data-i="${i}"][data-j="${j}"]`);
+                var elCell = getCellElement(i, j);
                 renderUncoveredCell(elCell, i, j);
                 gGame.shownCount++;
             }
@@ -59,4 +47,29 @@ function showAllMines() {
     }
 }
 
+//TODO function renderBestScore()
 
+function renderBoard() {
+    var strHTML = '';
+    for (var i = 0; i < gBoard.length; i++) {
+        strHTML += '<tr>';
+        for (var j = 0; j < gBoard[0].length; j++) {
+            var className;
+            var innerText = '';
+            if (gBoard[i][j].isShown) {
+                var className = 'revealed';
+                if (gBoard[i][j].isMine) innerText = MINE;
+                else if (gBoard[i][j].minesAroundCount > 0) innerText = gBoard[i][j].minesAroundCount;
+            } else{
+                className = 'covered';
+                if (gBoard[i][j].isMarked) innerText = FLAG;
+            } 
+
+            strHTML += `<td class="${className}" data-i="${i}" data-j="${j}" onclick="cellClicked(${i}, ${j})" 
+                oncontextmenu="cellMarked(${i}, ${j})" >${innerText}</td>`;
+            }
+            strHTML += '</tr>';
+        }
+        var elBoard = document.querySelector('.board');
+        elBoard.innerHTML = strHTML;
+}
