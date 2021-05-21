@@ -1,7 +1,7 @@
 'use strict'
 
 var gLevel = {
-    SIZE: 16,
+    SIZE: 4,
     MINES: 2,
     NAME: 'easy'
 }
@@ -10,17 +10,11 @@ function getRandomNumber(max, min=0) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
-function createEmptyBoard() {
-    var board = [];
-    var height = Math.sqrt(gLevel.SIZE);
-    for (var i = 0; i < height; i++) {
-        var row = [];
-        for (var j = 0; j < height; j++) {
-            row.push([]);
-        }
-        board.push(row);
-    }
-    return board;
+function disableContextMenu() {
+    const noContext = document.querySelector('.board');
+noContext.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+  });
 }
 
 

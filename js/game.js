@@ -9,18 +9,6 @@ const DEFEAT_FACE = '😦';
 const VICTORY = true;
 const DEFEAT = false;
 
-/********************** */ //TODO put this is a better place
-const noContext = document.querySelector('.board');
-noContext.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-  });
-/************ */
-var gBestScores = {
-    easy: 0,
-    medium: 0,
-    hard: 0
-}
-
 
 var gGame = {
     isOn: false,
@@ -34,121 +22,127 @@ var gGame = {
 }
 
 var gStates = [];
-
-
 var gTimerIntervalId;
 
 //this clears previous global variables and displays a new board
 function init(){
     if (gTimerIntervalId) clearInterval(gTimerIntervalId);
-    var startTime = new Date();
-    gTimerIntervalId = setInterval(showTime, 1000, startTime);
-    gGame.isOn = true; //TODO probably can remove this
-    gGame.shownCount = 0;
-    gGame.markedCount = 0;
-    gGame.secsPassed = 0;
-    gGame.lives = 3;
-    gGame.currHint = 3;
-    gGame.isSetMinesMode = false;
-    document.querySelector('.lives span').style.display = 'auto';
+    initGameObject();
     gStates = [];
+    document.querySelector('.lives span').style.display = 'auto';
     renderHints();
-    renderSmiley(NORMAL_FACE);
-    //TODO start timer/ move it to here
-    if (gLevel.NAME !== 'manual') gBoard = createEmptyBoard();    
+    renderSmiley(NORMAL_FACE); 
+    renderLevels();  
+    gBoard = buildBoard();    
     renderBoard();
     
+}
+
+function initGameObject() {
+
+    gGame = {
+        isOn: true,
+        isHintMode: false,
+        currHint: 3,
+        isSetMinesMode: false,
+        shownCount: 0,
+        markedCount: 0,
+        secsPassed:0,
+        lives: 3
+    }
 }
 
 //this starts the game
 function cellClicked(i, j){
     console.log("handling left click");
-    
+    debugger;
     if (gGame.isSetMinesMode) {
         addMineManually(i, j);
         return;
     }
-    else if ((gBoard[i][j] && gBoard[i][j].isShown) || !gGame.isOn) return;
+    if ((gBoard[i][j] && gBoard[i][j].isShown) || !gGame.isOn) return;
     if (!gGame.shownCount && gLevel.NAME !== 'manual') startGame(i, j);
     if (gGame.isHintMode) {
         showHint(i, j);
         return;
     }
-    
-    
+       
+    saveState();
+
     var cell = gBoard[i][j];
     var elCell = getCellElement(i, j);
-    saveState();
+    
     if (cell.isMine) {
         if (gGame.lives) {
+            elCell.innerHTML = MINE;
+            setTimeout(function() {elCell.innerHTML = '';}, 1000);
+
             removeLife();
             //TODO show the user the mine for 2 secs
         }
-        else endGame(DEFEAT);
-        
+        else {
+            
+            endGame(DEFEAT); 
+        }
+
         return;
     }
-    cell.isShown = true; //maybe change this logic so it happend in showSurroundingCells()
-    gGame.shownCount++;
-    renderUncoveredCell(elCell, i, j);
-    if (!cell.isMine) showSurroundingCells(elCell, i, j);  
+
+    showSurroundingCells(elCell, i, j);  
     if (checkGameOver()) endGame(true);
 }
 
-
-function cellMarked( i, j) {
-    if (!gGame.isOn || gGame.isSetMinesMode) return;
-    console.log("handling right click");
-    var cell = gBoard[i][j];
-    if (cell.isShown) return;
-
-    saveState();
-
-    cell.isMarked = !cell.isMarked;
-    elCell.innerHTML = cell.isMarked ? FLAG: '';
-    console.log(cell);
-    gGame.markedCount++;
-    if (checkGameOver()) {
-        endGame(VICTORY);
-        return;
-    }
-}
-
-function checkGameOver() {
-    return gGame.markedCount === gLevel.MINES && gGame.shownCount === gLevel.SIZE - gLevel.MINES; //TODO try improve the logic here
-}
-
-
 //uncovers adjacent cells
 function showSurroundingCells(elCell, i, j) {
-    //console.log("showing surrounding cells");
+    gBoard[i][j].isShown = true; 
+    gGame.shownCount++;
+    renderCell(elCell, i, j);
+    if (gBoard[i][j].minesAroundCount > 0) return;
+
     for (var x = i - 1; x <= i + 1; x++) {
         if (x < 0 || x >= gBoard.length) continue;
         for (var y = j - 1; y <= j+1; y++) {
             if (y < 0 || y >= gBoard.length || (x === i && y === j)) continue;
             if (gBoard[x][y].isMine || gBoard[x][y].isShown) continue;
     
-            gBoard[x][y].isShown = true; 
-            renderUncoveredCell(elCell, x, y);
-            if (gBoard[x][y].minesAroundCount === 0){
+            // gBoard[x][y].isShown = true; 
+            // renderUncoveredCell(elCell, x, y);
+           // if (gBoard[x][y].minesAroundCount === 0){
                 showSurroundingCells(getCellElement(x, y), x, y);
                 
-            }
-            gGame.shownCount++;
+           // }
+           // gGame.shownCount++;
 
         }
     }
     if (checkGameOver()) endGame(true);
 }
 
+function cellMarked( i, j) {
+    if (!gGame.isOn || gGame.isSetMinesMode) return;
+    console.log("handling right click");
+    var cell = gBoard[i][j];
+    var elCell = getCellElement(i, j);
+    if (cell.isShown) return;
+
+    saveState();
+    cell.isMarked = !cell.isMarked;
+    cell.isMarked ? gGame.markedCount++ : gGame.markedCount--;
+    renderCell(elCell, i, j);
+    if (checkGameOver()) {
+        endGame(VICTORY);
+        return;
+    }
+}
+
+
+function checkGameOver() {
+    return gGame.markedCount === gLevel.MINES && gGame.shownCount === gLevel.SIZE * gLevel.SIZE - gLevel.MINES; //TODO try improve the logic here
+}
 
 function endGame(isVictory) {
     console.log("ending game");
-    if (10000 - gGame.secsPassed > gBestScores[gLevel.NAME] && isVictory) {//TODO check how to calculate score
-        gBestScores[gLevel.NAME] = 10000 - gGame.secsPassed;//model
-        document.querySelector('.' + gLevel.NAME + '-score').innerText = gBestScores[gLevel.NAME];//DOM
-    } 
-    
+    if (isVictory) checkBestScore();
     clearInterval(gTimerIntervalId);
     gGame.isOn = false;
     var smiley = isVictory ? VICTORY_FACE : DEFEAT_FACE;
@@ -158,11 +152,12 @@ function endGame(isVictory) {
 }
 
 function startGame(startPosI, startPosJ) {
-
-    buildBoard(startPosI, startPosJ);
+    
+    addMinesToBoard(startPosI, startPosJ);  
     renderBoard();
     saveState();
-
+    var startTime = new Date();
+    gTimerIntervalId = setInterval(showTime, 1000, startTime);
 
 }
 
@@ -172,15 +167,15 @@ function setLevel(level) {
     gLevel.NAME = level;
     switch (level) {
         case 'easy':
-            gLevel.SIZE = 16;
+            gLevel.SIZE = 4;
             gLevel.MINES = 2;
             break;
         case 'medium':
-            gLevel.SIZE = 64;
+            gLevel.SIZE = 8;
             gLevel.MINES = 12;
             break;
         case 'hard':
-            gLevel.SIZE = 144;
+            gLevel.SIZE = 12;
             gLevel.MINES = 30;
             break;
     }
@@ -230,7 +225,7 @@ function saveState() {
     
 }
 
-function restart() {
+function restartGame() {
     endGame(false);
     init();
 }
@@ -270,7 +265,7 @@ function showHint(i, j) {
                 var elCell = getCellElement(x, y);
                 elCell.innerHTML = getCellContent(x,y);
                 elCell.className = "hinted";
-                setTimeout(unhintCell, 2000, elCell); 
+                setTimeout(unhintCell, 2000, elCell, x, y); 
                            
             }
 
@@ -281,12 +276,9 @@ function showHint(i, j) {
                 gGame.currHint--; 
 }
 
-function unhintCell(elCell) {
-    
-    elCell.innerHTML = '';
-        elCell.className = "covered";
-        elCell.innerHTML = '';
-        gGame.isHintMode = false;
+function unhintCell(elCell, i, j) {
+    renderCell(elCell, i, j);
+    gGame.isHintMode = false;
         
 }
 
@@ -294,31 +286,36 @@ function addMineManually(i, j) {
     if (gBoard[i][j].isMine) return;
     gBoard[i][j].isMine = true;
     gLevel.MINES++;
+    //renderCell(getCellElement(i,j), i, j);
     getCellElement(i,j).innerText = MINE;
 
 
 }
 
 function toggleMinesMode(elBtn) {
-    //if (gGame.shownCount > 0 && gGame.isOn) return; 
-    debugger;
+    // if (gGame.shownCount > 0 && gGame.isOn) {
+    //     alert('cannot switch modes in the middle of a game');
+    //     return; 
+    // } 
     if (gGame.isSetMinesMode) { //to unset mines mode
-        init();
+        
+        //change mode
         gGame.isSetMinesMode = false;
         elBtn.innerText = 'Manual';
         elBtn.style.backgroundColor = '#003e19';
         gGame.isOn = true;
+        
+        //start the game //TODO poss move to startGame function
         saveState();
-        setMinesNegsCount(gBoard);//TODO try only use this in board file
+        setMinesNegsCount(gBoard);
         renderBoard();
-        printMines(gBoard);
     } else { //to set mines mode
+        init();
         gGame.isSetMinesMode = true;
         gLevel.NAME = 'manual';
         gLevel.MINES = 0;
         elBtn.innerText = 'Play';
         elBtn.style.backgroundColor = '#7bc5ae';
-        gBoard = buildBoard();
     }
 }
 

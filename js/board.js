@@ -2,50 +2,46 @@
 var gBoard;
 
 
-function buildBoard(currPosI=-1, currPosJ=-1) { 
-    //build empty board
-    //var board = createEmptyBoard();
-    var board = gBoard; //TODO change this so more logical
-    var height= Math.sqrt(gLevel.SIZE);
-    for (var i = 0; i < height; i++) {
-        //var row = [];
-        for (var j = 0; j < height; j++) {
-            board[i][j] = {
+function buildBoard() { 
+    var board = []; //TODO change this so more logical
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        var row = []
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            row.push({
                 minesAroundCount: 0,
                 isShown: false,
                 isMine: false,
                 isMarked: false
-            };
+            });
+
         }
-        //board.push(row);
+        board.push(row);
     }
     //fill with mines
-    if (gLevel.NAME !== 'manual') insertMines(board, currPosI, currPosJ);  
-    setMinesNegsCount(board);
-    // printMines(board);
-    // printMinesCount(board)
+    // if (gLevel.NAME !== 'manual') insertMines(board, currPosI, currPosJ);  
+    // setMinesNegsCount(board);
+
     return board;
 }
 
 
 //helper functions//
 
+function addMinesToBoard(currPosI, currPosJ) {
+    insertMines(gBoard, currPosI, currPosJ);
+    setMinesNegsCount(gBoard);
+}
+
 //adds mines to random locations on board when creating the board
 function insertMines(board, currPosI, currPosJ) {
     //create array of positions
     var positions = getPositions(board, currPosI, currPosJ);
     
-    //console.log('positions', positions);
-    for (var minesCount = 0; minesCount < gLevel.MINES; minesCount++) {
-        //add mines randomly
+    for (var minesCount = 0; minesCount < gLevel.MINES; minesCount++) {      
         var randomIndex = getRandomNumber(positions.length);
-        var position = positions[randomIndex];
-        board[position.i][position.j].isMine = true;
-        //console.log('mine', {i:position.i, j:position.j});
-        //console.log('index', randomIndex);
+        board[positions[randomIndex].i][positions[randomIndex].j].isMine = true;
         positions.splice(randomIndex, 1);
     } 
-
 }
 
 //inserts the number of neighbouring mines to the board
@@ -68,10 +64,8 @@ function getMinesCount(cellLocation, board) {
         for (var y = cellLocation.j - 1; y <= cellLocation.j+1; y++) {
             if (y < 0 || y >= board[0].length) continue;
             if (board[x][y].isMine) count++;
-           // console.log({i:x,j:y})
         }
     }
-  //  console.log("end count", count);
     return count;
 }
 

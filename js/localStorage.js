@@ -11,20 +11,21 @@ function initializeLocalStorage(){
     }
 }
 
-function handleBestScore() {
+function checkBestScore() {
     var score = 100000 - gGame.secsPassed;
     if (gLevel.NAME === 'easy' && score > localStorage.scoreEasy) {
-        localStorage.scoreEasy = score;
+        localStorage.scoreEasy = score; debugger;
         document.querySelector('.easy-score').innerText = localStorage.scoreEasy;
     } else if (gLevel.NAME === 'medium' && score > localStorage.scoreMedium) {
         localStorage.scoreMedium = score;
-        document.querySelector('.medium-score').innerText = localStorage.scoreEasy;
+        document.querySelector('.medium-score').innerText = localStorage.scoreMedium;
     } else if (gLevel.NAME === 'hard' && score > localStorage.scoreHard) {
-        localStorage.scoreMedium = score;
-        document.querySelector('.hard-score').innerText = localStorage.scoreEasy;
+        localStorage.scoreHard = score;
+        document.querySelector('.hard-score').innerText = localStorage.scoreHard;
     } 
     console.log(localStorage);
 }
+
 
 
 
